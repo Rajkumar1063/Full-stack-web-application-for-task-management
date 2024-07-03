@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager - Tasks</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome, <?php echo $_SESSION['username']; ?>!</h2>
+        <form action="tasks.php" method="post">
+            <input type="text" name="task_name" placeholder="Enter task" required>
+            <button type="submit" name="add_task">Add Task</button>
+        </form>
+        <ul>
+            <?php
+            include 'db.php';
+            $username = $_SESSION['username'];
+            $user_sql = "SELECT id FROM users WHERE username='$username'";
+            $user_result = $conn->query($user_sql);
+            $user_row = $user_result->fetch_assoc();
+            $user_id = $user_row['id'];
+
+            $tasks_sql = "SELECT * FROM tasks WHERE user_id=$user_id";
+            $tasks_result = $conn->query($tasks_sql);
+
+            if ($tasks_result->num_rows > 0) {
+                while ($row = $tasks_result->fetch_assoc()) {
+                    echo "<li>" . $row['task_name'] . " <form action='tasks.php' method='post'><input type='hidden' name='delete_id' value='" . $row['id'] . "'><button type='submit' name='delete_task'>Delete</button></form></li>";
+                }
+            } else {
+                echo "<li>No tasks found.</li>";
+            }
+
+            $conn->close();
+            ?>
+        </ul>
+        <a href="logout.php">Logout</a>
+    </div>
+</body>
+</html>
